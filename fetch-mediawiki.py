@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import urllib.parse
 
+OUTPUT_ITEM_MODIFIERS = "./data/processed/item-modifiers.json"
+
 
 def pathSafeString(url: str) -> str:
     return urllib.parse.quote(url, safe="")
@@ -48,7 +50,7 @@ def parse(html: str) -> dict[str, str]:
     return modifiers
 
 
-with open("item-modifiers.json", "w") as file:
+with open(OUTPUT_ITEM_MODIFIERS, "w") as file:
     # fmt: off
     modifiers = parse(localCache("List of modifiers for body armours (strength)")) |\
         parse(localCache("List of modifiers for body armours (dexterity)")) |\

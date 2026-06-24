@@ -2,6 +2,8 @@ from nicegui import ui
 from pprint import pp  # noqa
 import json
 
+ITEM_MODIFIERS = "./data/processed/item-modifiers.json"
+
 ui.label("Add POE2 filter rule:")
 
 # Tab layout
@@ -22,7 +24,7 @@ with ui.tab_panels(tabs, value=byName):
 
 
 # Todo: stats, amulet modifiers for now
-with open("item-modifiers.json") as file:
+with open(ITEM_MODIFIERS) as file:
     data = json.load(file)
 
 
