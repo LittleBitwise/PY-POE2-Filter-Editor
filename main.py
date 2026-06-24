@@ -1,4 +1,6 @@
 from nicegui import ui
+from pprint import pp  # noqa
+import json
 
 ui.label("Add POE2 filter rule:")
 
@@ -18,7 +20,30 @@ with ui.tab_panels(tabs, value=byName):
             ui.input("Base type")
             ui.checkbox("Partial match")
 
+
 # Todo: stats, amulet modifiers for now
+with open("item-modifiers.json") as file:
+    data = json.load(file)
+
+
+@ui.refreshable
+def statTierButtons() -> None:
+    if not statSelect.value:
+        return
+    x: list = data["Amulets"][statSelect.value]
+    tiers = len(x)
+    with ui.button_group().bind_visibility_from(statSelect, "value"):
+        for i in range(tiers, 0, -1):
+            ui.button(f"T{i}")
+
+
+statSelect = ui.select(
+    options=list(data["Amulets"].keys()),
+    with_input=True,
+    on_change=lambda e: statTierButtons.refresh(),
+)
+
+statTierButtons()
 
 with ui.button_group():
     ui.button("Hide")
