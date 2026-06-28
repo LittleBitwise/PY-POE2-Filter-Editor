@@ -15,6 +15,41 @@ with open(ITEM_TYPES) as file:
 
 ui.label("Add POE2 filter rule:")
 
+chosenModifier: ui.select | None = None
+chosenClass: ui.select | None = None
+
+
+@ui.refreshable
+def statTierButtons() -> None:
+    print("statTierButtons")
+    if not chosenModifier or not chosenClass:
+        return
+    if not chosenModifier.value or not chosenClass.value:
+        return
+    x: list = item_modifiers[chosenClass.value][chosenModifier.value]
+    if not x:
+        return
+    tiers = len(x)
+    with ui.button_group().bind_visibility_from(chosenModifier, "value"):
+        for i in range(tiers, 0, -1):
+            ui.button(f"T{i}")
+
+
+@ui.refreshable
+def modifierSelect() -> None:
+    print("modifierSelect")
+    if not chosenClass:
+        return
+    if chosenClass.value not in item_modifiers.keys():
+        return
+    global chosenModifier
+    chosenModifier = ui.select(
+        list(item_modifiers[chosenClass.value].keys()),
+        with_input=True,
+        on_change=lambda: statTierButtons.refresh(),
+    )
+
+
 # Tab layout
 with ui.tabs() as tabs:
     byName = ui.tab("By name").tooltip("""
@@ -45,30 +80,15 @@ with ui.tab_panels(tabs, value=byName):
             ui.checkbox("Partial match")
     with ui.tab_panel(byClass):
         with ui.row():
-            ui.select(item_types["Class"], with_input=True)
+            chosenClass = ui.select(
+                item_types["Class"],
+                with_input=True,
+                on_change=lambda: modifierSelect.refresh(),
+            )
+            modifierSelect()
+        with ui.row():
+            statTierButtons()
 
-
-# Todo: stats, amulet modifiers for now
-
-
-@ui.refreshable
-def statTierButtons() -> None:
-    if not statSelect.value:
-        return
-    x: list = item_modifiers["Amulets"][statSelect.value]
-    tiers = len(x)
-    with ui.button_group().bind_visibility_from(statSelect, "value"):
-        for i in range(tiers, 0, -1):
-            ui.button(f"T{i}")
-
-
-statSelect = ui.select(
-    list(item_modifiers["Amulets"].keys()),
-    with_input=True,
-    on_change=lambda e: statTierButtons.refresh(),
-)
-
-statTierButtons()
 
 with ui.button_group():
     ui.button("Hide")
