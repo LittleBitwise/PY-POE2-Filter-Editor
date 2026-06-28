@@ -5,19 +5,32 @@ import json
 ITEM_MODIFIERS = "./data/processed/item-modifiers.json"
 ITEM_TYPES = "./data/processed/item-types.json"
 
+# Item modifiers by Class
 with open(ITEM_MODIFIERS) as file:
-    item_modifiers = json.load(file)
+    item_modifiers: dict[str, dict[str, list[str]]] = json.load(file)
 
+# Item types by Class or BaseType
 with open(ITEM_TYPES) as file:
-    item_types = json.load(file)
+    item_types: dict[str, list[str]] = json.load(file)
 
 ui.label("Add POE2 filter rule:")
 
 # Tab layout
 with ui.tabs() as tabs:
-    byName = ui.tab("By name")  # "Eye of Chayula"
-    byType = ui.tab("By base type")  # "Gold Amulet", "Vaal Gloves"
-    byClass = ui.tab("By item class")  # "Amulets", "Gloves"
+    byName = ui.tab("By name").tooltip("""
+        This method is the most specific,
+        especially useful for unique items, like Eye of Chayula
+        """)
+    byType = ui.tab("By base type").tooltip("""
+        This method is useful when you want to filter a specific
+        kind of item, like any items based on Gold Amulet or Vaal Gloves.
+        This will include uniques of that type.
+        """)
+    byClass = ui.tab("By item class").tooltip("""
+        This method is the most broad, useful especially if you
+        want to hide items unusable by your build,
+        or highlight general categories like Jewels or Rings.
+        """)
 
 # Tab content
 with ui.tab_panels(tabs, value=byName):
@@ -27,7 +40,7 @@ with ui.tab_panels(tabs, value=byName):
             ui.checkbox("Partial match")
     with ui.tab_panel(byType):
         with ui.row():
-            # Todo: Would partial match conflict with select filter?
+            # Todo: Select doesn't allow partial inputs.
             ui.input("Base type")
             ui.checkbox("Partial match")
     with ui.tab_panel(byClass):
