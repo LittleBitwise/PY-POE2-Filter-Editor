@@ -1,5 +1,6 @@
 import json
 from collections import Counter
+import string
 
 # https://www.pathofexile.com/api/trade2/data/items
 POE2_ITEMS = "./data/raw/poe-api-trade2-data-items.json"
@@ -8,18 +9,30 @@ OUTPUT_ITEM_TYPES = "./data/processed/item-types.json"
 with open(POE2_ITEMS) as file:
     data = json.load(file)
 
-baseTypes = []
+baseTypes = set()
 
 for category in data["result"]:
+    if category["label"] == "Gems":
+        baseTypes.add("Uncut Skill Gem")
+        baseTypes.add("Uncut Spirit Gem")
+        baseTypes.add("Uncut Support Gem")
+        continue  # Only uncut gems can drop.
     for entry in category["entries"]:
-        baseTypes.append(entry["type"])
+        baseTypes.add(entry["type"])
 
 
-def duplicateWords(strings):
+def sharedWords(strings):
+    invalidGroups = ["of", "on", "the", "i", "ii", "iii"]
     counts = Counter()
     for s in strings:
-        counts.update(s.split())
-    return [word for word, count in counts.items() if count > 1]
+        removePunctuation = str.maketrans("", "", string.punctuation)
+        removeDigits = str.maketrans("", "", string.digits)
+        words = s.translate(removePunctuation).translate(removeDigits).split()
+        words = [w for w in words if w.lower() not in invalidGroups]
+        counts.update(words)
+    words = [word for word, count in counts.items() if count > 1]
+    words.sort()
+    return words
 
 
 with open(OUTPUT_ITEM_TYPES, "w") as file:
@@ -61,7 +74,7 @@ with open(OUTPUT_ITEM_TYPES, "w") as file:
             "Wands",
             "Waystones",
         ],
-        "BaseTypeGroup": duplicateWords(baseTypes),
-        "BaseType": baseTypes,
+        "BaseTypeGroup": sharedWords(baseTypes),
+        "BaseType": list(baseTypes),
     }
     json.dump(output, file)
