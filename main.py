@@ -15,6 +15,7 @@ with open(ITEM_TYPES) as file:
 
 chosenModifier: ui.select | None = None
 chosenClass: ui.select | None = None
+chosenBaseTypeGroup: ui.select | None = None
 
 
 @ui.refreshable
@@ -47,6 +48,17 @@ def modifierSelect() -> None:
     )
 
 
+@ui.refreshable
+def baseTypeSelect() -> None:
+    if not chosenBaseTypeGroup or not chosenBaseTypeGroup.value:
+        return
+    ui.select(
+        [s for s in item_types["BaseType"] if chosenBaseTypeGroup.value in s.split()],
+        label="Base type",
+        with_input=True,
+    )
+
+
 ui.label("Add POE2 filter rule:")
 
 # Tab layout
@@ -74,12 +86,14 @@ with ui.tab_panels(tabs, value=byName):
             ui.checkbox("Partial match")
     with ui.tab_panel(byType):
         with ui.row():
-            # Todo: Select doesn't allow partial inputs.
-            # Todo: There are almost 4000 base types, 60 spears, 80 essences, etc.
-            # Todo: Maybe process duplicate words into selectable list?
-            # Todo: There are over 1000 item groups. (shared word in name)
-            ui.input("Base type")
-            ui.checkbox("Partial match")
+            # Todo: Tooltip doesn't work here.
+            chosenBaseTypeGroup = ui.select(
+                item_types["BaseTypeGroup"],
+                label="Group",
+                with_input=True,
+                on_change=lambda: baseTypeSelect.refresh(),
+            )
+            baseTypeSelect()
     with ui.tab_panel(byClass):
         with ui.row():
             chosenClass = ui.select(
