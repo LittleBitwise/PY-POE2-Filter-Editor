@@ -13,31 +13,28 @@ with open(ITEM_MODIFIERS) as file:
 with open(ITEM_TYPES) as file:
     item_types: dict[str, list[str]] = json.load(file)
 
-ui.label("Add POE2 filter rule:")
-
 chosenModifier: ui.select | None = None
 chosenClass: ui.select | None = None
 
 
 @ui.refreshable
 def statTierButtons() -> None:
-    print("statTierButtons")
     if not chosenModifier or not chosenClass:
         return
     if not chosenModifier.value or not chosenClass.value:
         return
-    x: list = item_modifiers[chosenClass.value][chosenModifier.value]
-    if not x:
+    namedTiers = item_modifiers[chosenClass.value][chosenModifier.value]
+    if not namedTiers:
         return
-    tiers = len(x)
+    tiers = len(namedTiers)
     with ui.button_group().bind_visibility_from(chosenModifier, "value"):
+        # Modifier tiers go from high to low, T1 is best tier.
         for i in range(tiers, 0, -1):
             ui.button(f"T{i}")
 
 
 @ui.refreshable
 def modifierSelect() -> None:
-    print("modifierSelect")
     if not chosenClass:
         return
     if chosenClass.value not in item_modifiers.keys():
@@ -49,6 +46,8 @@ def modifierSelect() -> None:
         on_change=lambda: statTierButtons.refresh(),
     )
 
+
+ui.label("Add POE2 filter rule:")
 
 # Tab layout
 with ui.tabs() as tabs:
