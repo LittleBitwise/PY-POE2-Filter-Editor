@@ -75,6 +75,9 @@ with ui.tab_panels(tabs, value=byName):
     with ui.tab_panel(byType):
         with ui.row():
             # Todo: Select doesn't allow partial inputs.
+            # Todo: There are almost 4000 base types, 60 spears, 80 essences, etc.
+            # Todo: Maybe process duplicate words into selectable list?
+            # Todo: There are over 1000 item groups. (shared word in name)
             ui.input("Base type")
             ui.checkbox("Partial match")
     with ui.tab_panel(byClass):

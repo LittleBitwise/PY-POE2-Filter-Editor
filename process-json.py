@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 
 # https://www.pathofexile.com/api/trade2/data/items
 POE2_ITEMS = "./data/raw/poe-api-trade2-data-items.json"
@@ -12,6 +13,14 @@ baseTypes = []
 for category in data["result"]:
     for entry in category["entries"]:
         baseTypes.append(entry["type"])
+
+
+def duplicateWords(strings):
+    counts = Counter()
+    for s in strings:
+        counts.update(s.split())
+    return [word for word, count in counts.items() if count > 1]
+
 
 with open(OUTPUT_ITEM_TYPES, "w") as file:
     output = {
@@ -52,6 +61,7 @@ with open(OUTPUT_ITEM_TYPES, "w") as file:
             "Wands",
             "Waystones",
         ],
+        "BaseTypeGroup": duplicateWords(baseTypes),
         "BaseType": baseTypes,
     }
     json.dump(output, file)
